@@ -1,0 +1,7 @@
+---
+applications:
+  - name: spring-oauth-sso-demo
+    path: target/spring-oauth-sso-demo-0.0.1-SNAPSHOT.jar
+    env:
+      ACTIVE_PROFILES: secret
+      DEBUG: true
