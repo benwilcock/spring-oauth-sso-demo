@@ -6,12 +6,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GithubConfiguration {
+public class GoogleConfiguration {
 
-    @Bean(name = "github")
-    @ConfigurationProperties("github")
-    public ClientResources github() {
+    @Bean(name = "google")
+    @ConfigurationProperties("google")
+    public ClientResources google() {
         return new ClientResources();
     }
-
 }
