@@ -4,3 +4,33 @@ spring:
 
 management:
   context-path: /actuator
+  security:
+    enabled: false
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+github:
+  client:
+    clientId: <your-id-here>
+    clientSecret: <your-secret-here>
+    accessTokenUri: https://github.com/login/oauth/access_token
+    userAuthorizationUri: https://github.com/login/oauth/authorize
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://api.github.com/user
+
+google:
+  client:
+    clientId: <your-id-here>
+    clientSecret: <your-secret-here>
+    accessTokenUri: https://www.googleapis.com/oauth2/v3/token
+    userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+    scope: profile
+  resource:
+    userInfoUri: https://www.googleapis.com/userinfo/v2/me
+    preferTokenInfo: true
