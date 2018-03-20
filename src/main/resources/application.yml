@@ -9,7 +9,8 @@ management:
 
 logging:
   level:
-    org.springframework.security: DEBUG
+    org.springframework.security: INFO
+    com.benwilcock: DEBUG
 
 github:
   client:

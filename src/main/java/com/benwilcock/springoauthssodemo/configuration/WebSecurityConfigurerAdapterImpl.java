@@ -1,5 +1,7 @@
-package com.benwilcock.springoauthssodemo;
+package com.benwilcock.springoauthssodemo.configuration;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,26 +20,37 @@ import javax.servlet.Filter;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * In a simple single OAuth provider scenario, you don't actually need this class.
+ *
+ * We overide the {@link WebSecurityConfigurerAdapter} because we want to have multiple
+ * providers at the same time and show what is happening in terms of setup and
+ * configuration which you don't see in the regular Auto Configuration in SoringBoot.
+ */
 @EnableOAuth2Client
 @Component
-public class SocialWebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfigurerAdapterImpl.class);
 
     private OAuth2ClientContext oAuth2ClientContext;
-    private ClientResources github;
-    private ClientResources google;
+    private OAuthClientConfigurationProperties github;
+    private OAuthClientConfigurationProperties google;
 
-    public SocialWebSecurityConfigurerAdapterImpl(OAuth2ClientContext oAuth2ClientContext,
-                                                  @Qualifier("github") ClientResources github,
-                                                  @Qualifier("google") ClientResources google) {
+    public WebSecurityConfigurerAdapterImpl(OAuth2ClientContext oAuth2ClientContext,
+                                            @Qualifier("github") OAuthClientConfigurationProperties github,
+                                            @Qualifier("google") OAuthClientConfigurationProperties google) {
 
         this.oAuth2ClientContext = oAuth2ClientContext;
         this.github = github;
         this.google = google;
+        this.logTheConfig("Github", github);
+        this.logTheConfig("Google", google);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        LOGGER.info("Configuring our HttpSecurity...");
         http
                 // From the root '/' down...
                 .antMatcher("/**")
@@ -62,22 +75,44 @@ public class SocialWebSecurityConfigurerAdapterImpl extends WebSecurityConfigure
                     .formLogin()
                     .loginPage("/index.html")
                 .and()
+                    // ...and enable CSRF support using a Cookies strategy...
                     .csrf()
                     .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
+                    // ...and ensure our filters are constructed and used before other filters.
                     .addFilterBefore(ssoFilter(), BasicAuthenticationFilter.class);
     }
 
+    /**
+     * This helper method builds a {@link CompositeFilter} list containing
+     * {@link Filter} objects for our two OAuth providers (Google and GitHub).
+     * @return
+     */
     private Filter ssoFilter() {
+        String googlePath = "/login/google";
+        String githubPath = "/login/github";
+
         CompositeFilter filter = new CompositeFilter();
         List<Filter> filters = new ArrayList<>();
-        filters.add(ssoFilter(google, "/login/google"));
-        filters.add(ssoFilter(github, "/login/github"));
+
+        LOGGER.info("Creating the Servlet Filter for Google on {}...", googlePath);
+        filters.add(ssoFilter(google, googlePath));
+        LOGGER.info("Creating the Servlet Filter for Github on {}...", githubPath);
+        filters.add(ssoFilter(github, githubPath));
+
         filter.setFilters(filters);
         return filter;
     }
 
-    private Filter ssoFilter(ClientResources client, String path) {
+    /**
+     * This helper method is used to build {@link OAuth2ClientAuthenticationProcessingFilter} objects
+     * based on the configuration properties and the filter path given.
+     * @param client {@link OAuthClientConfigurationProperties}
+     * @param path
+     * @return
+     */
+    private Filter ssoFilter(OAuthClientConfigurationProperties client, String path) {
+        LOGGER.info("Builing the OAuth2ClientAuthenticationProcessingFilter for the path: {}", path);
         OAuth2ClientAuthenticationProcessingFilter filter = new OAuth2ClientAuthenticationProcessingFilter(path);
         OAuth2RestTemplate template = new OAuth2RestTemplate(client.getClient(), oAuth2ClientContext);
         filter.setRestTemplate(template);
@@ -86,5 +121,14 @@ public class SocialWebSecurityConfigurerAdapterImpl extends WebSecurityConfigure
         tokenServices.setRestTemplate(template);
         filter.setTokenServices(tokenServices);
         return filter;
+    }
+
+    private void logTheConfig(String name, OAuthClientConfigurationProperties client){
+        LOGGER.debug("Using the OAuth configuration for {} as follows...", name);
+        LOGGER.debug("User info uri: {}", client.getResource().getUserInfoUri());
+        LOGGER.debug("Access token uri: {}", client.getClient().getAccessTokenUri());
+        LOGGER.debug("Authentication scheme: {}", client.getClient().getAuthenticationScheme());
+        LOGGER.debug("Client authentication scheme: {}", client.getClient().getClientAuthenticationScheme());
+        LOGGER.debug("Grant type: {}", client.getClient().getGrantType());
     }
 }
