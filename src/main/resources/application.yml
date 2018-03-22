@@ -4,3 +4,21 @@ spring:
 
 management:
   context-path: /actuator
+  security:
+    enabled: false
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.benwilcock: DEBUG
+
+security:
+  oauth2:
+    client:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
+      accessTokenUri: https://github.com/login/oauth/access_token
+      userAuthorizationUri: https://github.com/login/oauth/authorize
+      clientAuthenticationScheme: form
+    resource:
+      userInfoUri: https://api.github.com/user
