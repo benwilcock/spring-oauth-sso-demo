@@ -9,7 +9,7 @@ management:
 
 logging:
   level:
-    org.springframework.security: INFO
+    org.springframework.security: DEBUG
     com.benwilcock: DEBUG
 
 github:
@@ -35,3 +35,14 @@ google:
   resource:
     userInfoUri: https://www.googleapis.com/userinfo/v2/me
     preferTokenInfo: true
+
+uaa:
+  client:
+    clientId: <your-id-here>
+    clientSecret: <your-secret-here>
+    checkTokenUrl: http://bw-uaa-server.cfapps.io/check_token
+    accessTokenUri: http://bw-uaa-server.cfapps.io/oauth/token
+    approvalsUri: http://bw-uaa-server.cfapps.io/approvals
+    userAuthorizationUri: http://bw-uaa-server.cfapps.io/oauth/authorize
+  resource:
+    userInfoUri: http://bw-uaa-server.cfapps.io/userinfo

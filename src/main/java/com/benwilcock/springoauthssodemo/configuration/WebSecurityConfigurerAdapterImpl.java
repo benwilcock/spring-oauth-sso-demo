@@ -36,16 +36,21 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
     private OAuth2ClientContext oAuth2ClientContext;
     private OAuthClientConfigurationProperties github;
     private OAuthClientConfigurationProperties google;
+    private OAuthClientConfigurationProperties uaa;
 
     public WebSecurityConfigurerAdapterImpl(OAuth2ClientContext oAuth2ClientContext,
                                             @Qualifier("github") OAuthClientConfigurationProperties github,
-                                            @Qualifier("google") OAuthClientConfigurationProperties google) {
+                                            @Qualifier("google") OAuthClientConfigurationProperties google,
+                                            @Qualifier("uaa") OAuthClientConfigurationProperties uaa
+                                            ) {
 
         this.oAuth2ClientContext = oAuth2ClientContext;
         this.github = github;
         this.google = google;
+        this.uaa = uaa;
         this.logTheConfig("Github", github);
         this.logTheConfig("Google", google);
+        this.logTheConfig("CloudFoundry Uaa", uaa);
     }
 
     @Override
@@ -91,6 +96,7 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
     private Filter ssoFilter() {
         String googlePath = "/login/google";
         String githubPath = "/login/github";
+        String uaaPath = "/login/uaa";
 
         CompositeFilter filter = new CompositeFilter();
         List<Filter> filters = new ArrayList<>();
@@ -99,6 +105,8 @@ public class WebSecurityConfigurerAdapterImpl extends WebSecurityConfigurerAdapt
         filters.add(ssoFilter(google, googlePath));
         LOGGER.info("Creating the Servlet Filter for Github on {}...", githubPath);
         filters.add(ssoFilter(github, githubPath));
+        LOGGER.info("Creating the Servlet Filter for CloudFoundry Uaa on {}...", uaaPath);
+        filters.add(ssoFilter(uaa, uaaPath));
 
         filter.setFilters(filters);
         return filter;
