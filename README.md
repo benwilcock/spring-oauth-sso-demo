@@ -92,12 +92,25 @@ To see a list of the registered clients at any time, issue the command `uaac cli
 
 ## Running the demo
 
-Get the code:
+### Step 1: Get the code:
 
 ```bash
 $ git clone https://github.com/benwilcock/spring-oauth-sso-demo.git
 $ git checkout <your-chosen-branch-name>
 ```
+
+### Step 2: Add your ClientID's and ClientSecrets 
+
+I've not added my ID's and Secrets to Git, so you'll need to add yours. In the `src/main/resources/application.yml` file add your real `clientId` and `clientSecret` where I've left placeholders for you...
+
+```yaml
+uaa:
+  client:
+    clientId: <your-client-id>
+    clientSecret: <your-client-secret>
+```
+
+### Step 3: Run the demo application locally
 
 To run the demo, do the following from the terminal:-
 
@@ -105,10 +118,12 @@ To run the demo, do the following from the terminal:-
 $ mvn clean package spring-boot:run
 ```
 
+### Step 4: Try and login
+
 Once your server has started successfully, begin a new 'Inconito' session in your web browser and point it to `http://localhost:8080`. 
 
 You should see a 'Login' screen (offering a choice of providers depending on which branch you choose).
 
-You can proceed to login and you should be directed to the login screen for the appropriate provider (Github, Google or CloudFoundry depending on the branch you checked out). You may be asked to allow the app access to your profile (choose to allow if you want to continue). 
+Proceed to login. You should be directed to the login screen for the appropriate provider (Github, Google or CloudFoundry depending on the branch you checked out). You may be asked to allow the demo application to access your profile (choose to allow if you want to continue). 
 
-Once you have logged in (using two-factor authentication if you have that enabled on your account) you will be redirected back to the app and the "Logout" button and the name you registered with the provider should be displayed.
+Once you have logged in (using two-factor authentication if you have that enabled on your account) you will be redirected back to the app and the "Logout" button and the name you registered with the provider should be displayed in the browser window.
